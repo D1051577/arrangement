@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>開源即時通訊工具索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0f;
+    --surface: #141418;
+    --surface2: #1c1c22;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #e8e6e0;
+    --muted: #7a7870;
+    --accent: #c8f060;
+    --accent2: #60d4f0;
+    --accent3: #f0a060;
+    --us: #60a8f0;
+    --uk: #78d48c;
+    --ch: #f0c060;
+    --br: #f08060;
+    --ca: #c060f0;
+    --de: #f06080;
+    --fr: #60c8f0;
+    --int: #a0a090;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 12px;
+    --radius-sm: 6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .4;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 5rem 2rem 3.5rem;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -120px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(200,240,96,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-head);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-n {
+    font-family: var(--font-head);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+  .stat-l { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(12,12,15,.88);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+  }
+  .controls-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 16px;
+  }
+  #search {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 9px 12px 9px 36px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  #search::placeholder { color: var(--muted); }
+  #search:focus { border-color: var(--accent); }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0c0c0f;
+    font-weight: 500;
+  }
+
+  /* ── VIEW TOGGLE ── */
+  .view-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+  .view-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all .15s;
+    line-height: 1;
+  }
+  .view-btn.active { background: var(--surface); color: var(--text); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2.5rem 0 1rem;
+  }
+  .section-title {
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .grid.list-view {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .2s, transform .15s, box-shadow .2s;
+    animation: fadeUp .4s ease both;
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  }
+  .card.expanded { border-color: rgba(200,240,96,.25); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-main {
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card-name {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -.01em;
+  }
+  .country-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .tag.enc  { border-color: rgba(96,212,240,.25); color: var(--accent2); }
+  .tag.p2p  { border-color: rgba(200,240,96,.25); color: var(--accent); }
+  .tag.xmpp { border-color: rgba(240,160,96,.25); color: var(--accent3); }
+  .tag.mat  { border-color: rgba(96,168,240,.25); color: var(--us); }
+
+  .expand-icon {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform .25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .card.expanded .expand-icon { transform: rotate(180deg); }
+
+  /* ── EXPANDED PANEL ── */
+  .card-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s ease;
+  }
+  .card-detail.open { max-height: 400px; }
+  .card-detail-inner {
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detail-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .detail-label { color: var(--muted); font-weight: 300; }
+  .detail-val { color: var(--text); }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid rgba(200,240,96,.25);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    transition: all .15s;
+    width: fit-content;
+  }
+  .card-link:hover {
+    background: rgba(200,240,96,.08);
+    border-color: rgba(200,240,96,.5);
+  }
+
+  /* ── COUNTRY COLORS ── */
+  .c-us  { background: rgba(96,168,240,.12); color: #88c4ff; border: 1px solid rgba(96,168,240,.2); }
+  .c-uk  { background: rgba(120,212,140,.12); color: #8adfa0; border: 1px solid rgba(120,212,140,.2); }
+  .c-ch  { background: rgba(240,192,96,.12); color: #f5d080; border: 1px solid rgba(240,192,96,.2); }
+  .c-br  { background: rgba(240,128,96,.12); color: #f5a080; border: 1px solid rgba(240,128,96,.2); }
+  .c-ca  { background: rgba(192,96,240,.12); color: #d490ff; border: 1px solid rgba(192,96,240,.2); }
+  .c-de  { background: rgba(240,96,128,.12); color: #f590a8; border: 1px solid rgba(240,96,128,.2); }
+  .c-fr  { background: rgba(96,200,240,.12); color: #80d8ff; border: 1px solid rgba(96,200,240,.2); }
+  .c-int { background: rgba(160,160,144,.10); color: #b0b0a0; border: 1px solid rgba(160,160,144,.2); }
+
+  /* ── NO RESULTS ── */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  footer a { color: var(--muted); }
+  footer strong { color: var(--text); }
+
+  /* ── LIST VIEW OVERRIDES ── */
+  .list-view .card-main {
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .list-view .card-top { flex: 1; min-width: 200px; }
+  .list-view .card-desc { flex: 2; min-width: 240px; font-size: 13px; }
+  .list-view .tags { flex: 1; min-width: 160px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero { padding: 3rem 1.25rem 2rem; }
+    .controls { padding: .75rem 1.25rem; }
+    main { padding: 1.5rem 1.25rem 3rem; }
+    .grid { grid-template-columns: 1fr; }
+    .filter-btn { font-size: 11px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="hero-eyebrow">Open Source · 非中國來源</p>
+  <h1>即時通訊<br><span>開源工具索引</span></h1>
+  <p class="hero-sub">從 GitHub 爬梳整理，涵蓋個人隱私、企業協作、開放協議等分類，已排除中國來源專案。</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-n" id="total-count">13</span><span class="stat-l">收錄工具</span></div>
+    <div class="stat"><span class="stat-n">7</span><span class="stat-l">來源國家</span></div>
+    <div class="stat"><span class="stat-n">4</span><span class="stat-l">分類類別</span></div>
+    <div class="stat"><span class="stat-n">0</span><span class="stat-l">中國來源</span></div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="搜尋工具名稱、功能、語言…">
+    </div>
+    <div class="filter-group" id="cat-filters">
+      <button class="filter-btn active" data-cat="all">全部</button>
+      <button class="filter-btn" data-cat="privacy">🔒 個人隱私</button>
+      <button class="filter-btn" data-cat="team">🏢 企業協作</button>
+      <button class="filter-btn" data-cat="protocol">📡 協議/伺服器</button>
+      <button class="filter-btn" data-cat="voip">📞 VoIP</button>
+    </div>
+    <div class="filter-group" id="country-filters">
+      <button class="filter-btn" data-country="🇺🇸">🇺🇸</button>
+      <button class="filter-btn" data-country="🇬🇧">🇬🇧</button>
+      <button class="filter-btn" data-country="🇨🇭">🇨🇭</button>
+      <button class="filter-btn" data-country="🇧🇷">🇧🇷</button>
+      <button class="filter-btn" data-country="🇨🇦">🇨🇦</button>
+      <button class="filter-btn" data-country="🇩🇪">🇩🇪</button>
+      <button class="filter-btn" data-country="🇫🇷">🇫🇷</button>
+      <button class="filter-btn" data-country="🌐">🌐</button>
+    </div>
+    <div class="view-toggle">
+      <button class="view-btn active" id="grid-btn" title="格狀檢視">⊞</button>
+      <button class="view-btn" id="list-btn" title="列表檢視">☰</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="sections-container"></div>
+</main>
+
+<footer>
+  <strong>開源即時通訊工具索引</strong>　·　資料截至 2026/05<br>
+  來源整理自 <a href="https://github.com/topics/instant-messaging" target="_blank">GitHub Topics</a> ·
+  <a href="https://alternativeto.net" target="_blank">AlternativeTo</a> ·
+  各專案官方文件<br>
+  已排除 OpenIM、YiChat 等中國來源專案
+</footer>
+
+<script>
+const DATA = [
+  {
+    id: 'signal', name: 'Signal', cat: 'privacy',
+    country: '🇺🇸', countryName: '美國', countryClass: 'c-us',
+    desc: '由非營利 Signal Foundation 維護，業界標竿的端對端加密即時通訊。不需 Google 服務，完全開源。',
+    detail: 'Signal Protocol 已成為業界加密標準，WhatsApp 等也採用。提供訊息、語音、視訊通話，支援消失訊息、密封寄件人等進階隱私功能。',
+    tags: [['端對端加密','enc'],['語音/視訊',''],['行動/桌面',''],['非營利','']],
+    license: 'AGPL-3.0', lang: 'Java / Swift / Kotlin', stars: '~11k',
+    github: 'https://github.com/signalapp',
+    founded: '2014（Open Whisper Systems）→ 2018（Signal Foundation）'
+  },
+  {
+    id: 'wire', name: 'Wire', cat: 'privacy',
+    country: '🇨🇭', countryName: '瑞士', countryClass: 'c-ch',
+    desc: 'Wire Swiss GmbH 開發，總部瑞士楚格，開發中心德國柏林。強調企業與個人通訊的 E2E 加密。',
+    detail: '支援群組通話（最多 500 人）、視訊會議、螢幕共享、檔案分享。有企業版 Wire for Government，符合歐盟 GDPR。',
+    tags: [['端對端加密','enc'],['企業版',''],['自架',''],['GDPR','']],
+    license: 'GPL-3.0', lang: 'TypeScript / Swift / Kotlin', stars: '~2.4k',
+    github: 'https://github.com/wireapp',
+    founded: '2012，瑞士楚格'
+  },
+  {
+    id: 'threema', name: 'Threema', cat: 'privacy',
+    country: '🇨🇭', countryName: '瑞士', countryClass: 'c-ch',
+    desc: 'Threema GmbH 開發，伺服器設於瑞士境內。不需電話號碼，匿名性高。',
+    detail: '用戶端程式碼開源（AGPL-3.0），伺服器端不開源。透過隨機 Threema ID 識別，可選填電話或 Email。約有 1,000 萬用戶，Threema Work 被超過 5,000 個組織採用。',
+    tags: [['端對端加密','enc'],['匿名',''],['付費',''],['瑞士伺服器','']],
+    license: 'AGPL-3.0（客戶端）', lang: 'Objective-C / Java / .NET', stars: '~1.5k',
+    github: 'https://github.com/threema-ch',
+    founded: '2012，瑞士 Pfäffikon'
+  },
+  {
+    id: 'deltachat', name: 'Delta Chat', cat: 'privacy',
+    country: '🇩🇪', countryName: '德國', countryClass: 'c-de',
+    desc: '由德國 merlinux GmbH 維護的 GNU 計畫。以 Email/IMAP 為傳輸協議，無需額外帳號，OpenPGP 加密。',
+    detail: '可與任何 Email 信箱互通，chatmail 伺服器提供匿名快速入門。支援群組、語音訊息、檔案分享，近期加入互動式迷你應用功能。',
+    tags: [['OpenPGP','enc'],['去中心化',''],['Email 相容',''],['GNU','']],
+    license: 'GPL-3.0', lang: 'Rust / Kotlin / Swift', stars: '~900',
+    github: 'https://github.com/deltachat',
+    founded: '2017，德國'
+  },
+  {
+    id: 'briar', name: 'Briar', cat: 'privacy',
+    country: '🇬🇧', countryName: '英國', countryClass: 'c-uk',
+    desc: '英國 Briar Project，可透過 Tor、藍牙、Wi-Fi 傳訊，完全無需中央伺服器。',
+    detail: '為審查或網路受限環境設計。透過 Tor 傳輸隱藏 IP，藍牙/Wi-Fi 模式可在斷網情況下使用。支援論壇、Blog（P2P），由 NLnet 基金會資助。',
+    tags: [['P2P','p2p'],['Tor 支援',''],['端對端加密','enc'],['無伺服器','']],
+    license: 'GPL-3.0', lang: 'Java / Kotlin', stars: '~500',
+    github: 'https://code.briarproject.org/briar/briar',
+    founded: '2018，英國'
+  },
+  {
+    id: 'tox', name: 'Tox / c-toxcore', cat: 'privacy',
+    country: '🌐', countryName: '國際社群', countryClass: 'c-int',
+    desc: '去中心化 P2P 協議，支援即時訊息與視訊通話，完全無中央伺服器。由全球社群 TokTok 維護。',
+    detail: '無需帳號，以隨機生成的公鑰識別用戶。多個客戶端實作（qTox、μTox 等）。DHT 網路自動發現節點，不依賴任何中心化基礎設施。',
+    tags: [['P2P','p2p'],['端對端加密','enc'],['無帳號',''],['視訊通話','']],
+    license: 'GPL-3.0', lang: 'C', stars: '~2.1k',
+    github: 'https://github.com/TokTok/c-toxcore',
+    founded: '2013，國際社群'
+  },
+  {
+    id: 'rocketchat', name: 'Rocket.Chat', cat: 'team',
+    country: '🇧🇷', countryName: '巴西', countryClass: 'c-br',
+    desc: '2015 年由巴西 Porto Alegre 創立。功能最完整的開源團隊通訊平台之一，逾 1,200 萬用戶。',
+    detail: '支援全通路（WhatsApp、Email、電話等整合）、多語自動翻譯（50+ 語言）、螢幕共享、視訊會議。已整合 Matrix 協議。客戶涵蓋德國鐵路、Audi、Continental 等。',
+    tags: [['自架',''],['全通路',''],['視訊/語音',''],['Matrix 相容','mat']],
+    license: 'MIT', lang: 'TypeScript / Node.js', stars: '~41k',
+    github: 'https://github.com/RocketChat/Rocket.Chat',
+    founded: '2015，巴西 Porto Alegre'
+  },
+  {
+    id: 'mattermost', name: 'Mattermost', cat: 'team',
+    country: '🇺🇸', countryName: '美國', countryClass: 'c-us',
+    desc: '總部加州 Palo Alto，專為政府、國防及關鍵基礎設施打造。獲 NASA、美國空軍等採用。',
+    detail: '支援 DevOps 工作流自動化，與 GitHub、GitLab、Jira、PagerDuty 深度整合。提供主權部署，資料完全在自有基礎設施。可合規於 FedRAMP、ITAR 等標準。',
+    tags: [['自架',''],['主權部署',''],['CI/CD 整合',''],['合規','']],
+    license: 'AGPL-3.0 / 商業', lang: 'Go / TypeScript', stars: '~31k',
+    github: 'https://github.com/mattermost/mattermost',
+    founded: '2016，美國加州'
+  },
+  {
+    id: 'zulip', name: 'Zulip', cat: 'team',
+    country: '🇺🇸', countryName: '美國', countryClass: 'c-us',
+    desc: '原 Zulip, Inc. 開發，後由 Dropbox 開源，現由 Kandra Labs 維護。以主題式串聯訊息著稱。',
+    detail: 'Email 式的串聯訊息結構，適合非同步協作。全功能包含在開源版，商業部分僅為雲端托管。支援 Python API、Webhook、Bot。用戶包含 Wikimedia、Python 基金會等。',
+    tags: [['主題串聯',''],['自架',''],['Apache 2.0',''],['非同步','']],
+    license: 'Apache 2.0', lang: 'Python / TypeScript', stars: '~21k',
+    github: 'https://github.com/zulip/zulip',
+    founded: '2012（Zulip Inc.）'
+  },
+  {
+    id: 'matrix', name: 'Matrix / Element', cat: 'protocol',
+    country: '🇬🇧', countryName: '英國', countryClass: 'c-uk',
+    desc: '英國 Matrix.org Foundation 維護。去中心化聯邦協議；Element 為官方客戶端，Synapse/Dendrite 為伺服器實作。',
+    detail: 'Synapse（Python）是最成熟的伺服器實作，Dendrite（Go）為下一代輕量版本。支援橋接（Slack、Teams、IRC 等），用於德國聯邦政府、法國教育部等。',
+    tags: [['Matrix 協議','mat'],['聯邦',''],['端對端加密','enc'],['橋接','']],
+    license: 'Apache 2.0', lang: 'Python / Go / TypeScript', stars: '~12k（Synapse）',
+    github: 'https://github.com/matrix-org',
+    founded: '2014（Amdocs 內部）→ 2017（獨立）'
+  },
+  {
+    id: 'ejabberd', name: 'ejabberd', cat: 'protocol',
+    country: '🇫🇷', countryName: '法國', countryClass: 'c-fr',
+    desc: '由法國 ProcessOne 維護，以 Erlang 撰寫的 XMPP/MQTT/SIP 伺服器，2003 年起持續開發。',
+    detail: '支援集群、大規模部署（WhatsApp 早期曾使用），內建管理介面，超過 28 種語言界面。同時支援 XMPP、MQTT Broker、SIP 服務三種協議。',
+    tags: [['XMPP','xmpp'],['MQTT',''],['Erlang',''],['大規模','']],
+    license: 'GPL-2.0', lang: 'Erlang', stars: '~6k',
+    github: 'https://github.com/processone/ejabberd',
+    founded: '2002，俄羅斯（Alexey Shchepin），現由法國 ProcessOne 維護'
+  },
+  {
+    id: 'prosody', name: 'Prosody IM', cat: 'protocol',
+    country: '🇬🇧', countryName: '英國', countryClass: 'c-uk',
+    desc: '輕量 XMPP 伺服器，以 Lua 撰寫，MIT 授權。易於設定，適合個人或小型組織自架。',
+    detail: '模組化架構，社群插件豐富。記憶體需求極低，可在 512MB VPS 上流暢運行數十人。2026 年仍積極維護（13.0.6 版）。支援 OMEMO、MAM 等現代 XMPP 擴充。',
+    tags: [['XMPP','xmpp'],['Lua',''],['輕量',''],['MIT','']],
+    license: 'MIT', lang: 'Lua', stars: '~1.7k',
+    github: 'https://github.com/nicowillis/prosody',
+    founded: '2008，英國'
+  },
+  {
+    id: 'openfire', name: 'Openfire', cat: 'protocol',
+    country: '🇺🇸', countryName: '美國', countryClass: 'c-us',
+    desc: '由美國 Ignite Realtime 社群維護的 Java XMPP 伺服器，Apache 2.0 授權，生態系豐富。',
+    detail: '圖形化管理介面（Admin Console），數百個社群插件，支援 LDAP/AD 整合，適合企業部署。穩定版 5.0.4（2026/03）。',
+    tags: [['XMPP','xmpp'],['Java',''],['企業插件',''],['LDAP','']],
+    license: 'Apache 2.0', lang: 'Java', stars: '~2.8k',
+    github: 'https://github.com/igniterealtime/Openfire',
+    founded: '2003（Jive Messenger），美國'
+  },
+  {
+    id: 'jami', name: 'Jami', cat: 'voip',
+    country: '🇨🇦', countryName: '加拿大', countryClass: 'c-ca',
+    desc: '加拿大 Savoir-faire Linux（蒙特婁）開發的 GNU 套件，完全 P2P，不需中央伺服器。',
+    detail: '支援語音、視訊、即時訊息、螢幕共享。跨平台（Linux、Windows、macOS、Android、iOS）。由 Free Software Foundation 認可的 GNU 套件。',
+    tags: [['P2P','p2p'],['GNU',''],['VoIP',''],['無伺服器','']],
+    license: 'GPL-3.0', lang: 'C++ / Kotlin / Swift', stars: '~1.4k（核心）',
+    github: 'https://git.jami.net/savoirfairelinux/jami-project',
+    founded: '2015，加拿大蒙特婁'
+  },
+  {
+    id: 'linphone', name: 'Linphone', cat: 'voip',
+    country: '🇫🇷', countryName: '法國', countryClass: 'c-fr',
+    desc: '由法國 Belledonne Communications 開發，完整 SIP 軟體電話，支援語音/視訊通話與即時訊息。',
+    detail: '完整 SIP 標準實作，支援 TLS/SRTP/ZRTP 加密。SDK 可嵌入企業應用，適合 VoIP 基礎設施整合。含 Flexisip SIP 代理伺服器。',
+    tags: [['SIP',''],['VoIP',''],['跨平台',''],['SDK','']],
+    license: 'GPL-3.0', lang: 'C / C++ / Swift / Kotlin', stars: '~2k',
+    github: 'https://github.com/BelledonneCommunications',
+    founded: '2001，法國'
+  }
+];
+
+const CAT_LABELS = {
+  privacy: '🔒 個人通訊 · 隱私導向',
+  team:    '🏢 團隊協作 · 企業自架',
+  protocol:'📡 開放協議 · 標準與伺服器',
+  voip:    '📞 VoIP · 多媒體通訊'
+};
+
+let activeCat = 'all';
+let activeCountry = null;
+let expandedId = null;
+let isListView = false;
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  const cats = activeCat === 'all' ? ['privacy','team','protocol','voip'] : [activeCat];
+  let total = 0;
+
+  cats.forEach(cat => {
+    const items = DATA.filter(d => {
+      if (d.cat !== cat) return false;
+      if (activeCountry && d.country !== activeCountry) return false;
+      if (q) {
+        const haystack = [d.name, d.desc, d.detail, d.countryName,
+          ...d.tags.map(t=>t[0])].join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+
+    if (!items.length) return;
+    total += items.length;
+
+    const section = document.createElement('div');
+    section.innerHTML = `
+      <div class="section-header">
+        <span class="section-title">${CAT_LABELS[cat]}</span>
+        <div class="section-line"></div>
+        <span class="section-count">${items.length} 項</span>
+      </div>`;
+
+    const grid = document.createElement('div');
+    grid.className = isListView ? 'grid list-view' : 'grid';
+
+    items.forEach((d, i) => {
+      const card = document.createElement('div');
+      card.className = 'card' + (expandedId === d.id ? ' expanded' : '');
+      card.style.animationDelay = (i * 0.04) + 's';
+      card.dataset.id = d.id;
+      card.innerHTML = `
+        <div class="card-main">
+          <div class="card-top">
+            <div class="card-name-row">
+              <span class="card-name">${d.name}</span>
+              <span class="country-badge ${d.countryClass}">${d.country} ${d.countryName}</span>
+            </div>
+            <span class="expand-icon">▾</span>
+          </div>
+          <p class="card-desc">${d.desc}</p>
+          <div class="tags">${d.tags.map(([t,c])=>`<span class="tag ${c}">${t}</span>`).join('')}</div>
+        </div>
+        <div class="card-detail${expandedId === d.id ? ' open' : ''}">
+          <div class="card-detail-inner">
+            <p style="font-size:13px;color:var(--text);line-height:1.6;font-weight:300;">${d.detail}</p>
+            <div>
+              <div class="detail-row"><span class="detail-label">授權</span><span class="detail-val">${d.license}</span></div>
+              <div class="detail-row"><span class="detail-label">語言</span><span class="detail-val">${d.lang}</span></div>
+              <div class="detail-row"><span class="detail-label">GitHub ★</span><span class="detail-val">${d.stars}</span></div>
+              <div class="detail-row"><span class="detail-label">創立</span><span class="detail-val">${d.founded}</span></div>
+            </div>
+            <a class="card-link" href="${d.github}" target="_blank" rel="noopener">
+              ↗ 前往 GitHub / 原始碼
+            </a>
+          </div>
+        </div>`;
+      card.addEventListener('click', () => toggleCard(d.id));
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+
+  document.getElementById('total-count').textContent = DATA.length;
+
+  if (total === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML = '<div class="empty-icon">⊘</div><p>沒有符合條件的工具</p>';
+    container.appendChild(empty);
+  }
+}
+
+function toggleCard(id) {
+  expandedId = expandedId === id ? null : id;
+  render();
+  if (expandedId) {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-id="${expandedId}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+  }
+}
+
+// Category filters
+document.getElementById('cat-filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat = btn.dataset.cat;
+  expandedId = null;
+  render();
+});
+
+// Country filters
+document.getElementById('country-filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  const c = btn.dataset.country;
+  if (activeCountry === c) {
+    activeCountry = null;
+    btn.classList.remove('active');
+  } else {
+    document.querySelectorAll('#country-filters .filter-btn').forEach(b => b.classList.remove('active'));
+    activeCountry = c;
+    btn.classList.add('active');
+  }
+  expandedId = null;
+  render();
+});
+
+// Search
+let searchTimer;
+document.getElementById('search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { expandedId = null; render(); }, 180);
+});
+
+// View toggle
+document.getElementById('grid-btn').addEventListener('click', () => {
+  isListView = false;
+  document.getElementById('grid-btn').classList.add('active');
+  document.getElementById('list-btn').classList.remove('active');
+  render();
+});
+document.getElementById('list-btn').addEventListener('click', () => {
+  isListView = true;
+  document.getElementById('list-btn').classList.add('active');
+  document.getElementById('grid-btn').classList.remove('active');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
